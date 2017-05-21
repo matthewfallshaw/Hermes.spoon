@@ -67,13 +67,17 @@ end
 --- Returns:
 ---  * None
 function obj:pause()
-  tell('pause')
-  return obj
+  if obj.isRunning() then
+    tell('pause')
+    return obj
+  else
+    hs.alert.show("Hermes isn't running")
+  end
 end
 
 --- Hermes:next()
 --- Method
---- Skips to the next itunes track
+--- Skips to the next Hermes track
 ---
 --- Parameters:
 ---  * None
@@ -83,6 +87,94 @@ end
 function obj:next()
   tell('next song')
   return obj
+end
+
+--- Hermes:like()
+--- Method
+--- Likes (thumbs up) the current Hermes track
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function obj:like()
+  if obj.isRunning() then
+    if obj.getCurrentRating() ~= 1 then
+      tell('thumbs up')
+    end
+    return obj
+  else
+    hs.alert.show("Hermes isn't running")
+  end
+end
+
+--- Hermes:dislike()
+--- Method
+--- Dislikes (thumbs down) the current Hermes track
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function obj:dislike()
+  if obj.isRunning() then
+    tell('thumbs down')
+    return obj
+  else
+    hs.alert.show("Hermes isn't running")
+  end
+end
+
+--- Hermes:tired()
+--- Method
+--- Puts the current Hermes track on the shelf for a while
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function obj:tired()
+  if obj.isRunning() then
+    tell('tired of song')
+    return obj
+  else
+    hs.alert.show("Hermes isn't running")
+  end
+end
+
+--- Hermes:quit()
+--- Method
+--- Quit Hermes
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function obj:quit()
+  if obj.isRunning() then
+    hs.application.get("Hermes"):kill()
+    return obj
+  end
+end
+
+--- Hermes:hide()
+--- Method
+--- Hide Hermes
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function obj:hide()
+  if obj.isRunning() then
+    hs.application.get("Hermes"):hide()
+    return obj
+  end
 end
 
 --- Hermes:displayCurrentTrack()
@@ -139,6 +231,23 @@ end
 ---  * A string containing the name of the current track, or nil if an error occurred
 function obj:getCurrentTrack()
   return tell('title of the current song as string')
+end
+
+--- Hermes:getCurrentRating() -> number or nil
+--- Function
+--- Gets the rating of the current track; 1:liked, 0:normal, -1:disliked
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A number, the rating of the current track, or nil if an error occurred
+function obj:getCurrentRating()
+  if obj.isRunning() then
+    return tell('rating of current song as integer')
+  else
+    return nil
+  end
 end
 
 --- Hermes:getPlaybackState() -> string or nil
@@ -281,6 +390,7 @@ function obj:getDuration()
   local duration = tonumber(tell('current song duration'))
   return duration ~= nil and duration or 0
 end
+
 
 
 obj.hotkeys={}

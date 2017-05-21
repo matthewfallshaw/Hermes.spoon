@@ -17,7 +17,8 @@ In your ~/.hammerspoon/init.lua you might include something like:
       playpause={{"⌥", "⌃", "⇧"}, "p"},
       displayCurrentTrack={{"⌥", "⌃", "⇧"}, "d"},
       -- etc.
-      -- playpause, play, pause, next, displayCurrentTrack, getCurrentArtist, getCurrentAlbum, getCurrentTrack,
+      -- playpause, play, pause, next, like, dislike, tired, hide, quit
+      -- displayCurrentTrack, getCurrentArtist, getCurrentAlbum, getCurrentTrack,
       -- getPlaybackState, isRunning, isPlaying, getVolume, setVolume, volumeUp, volumeDown, getPosition, getDuration
     })
 
