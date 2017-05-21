@@ -3,8 +3,7 @@
 --- Controls for Hermes music player
 
 local obj={}
--- obj.__index = obj
-local hotkeys={}
+obj.__index = obj
 
 -- Metadata
 obj.name = "Hermes"
@@ -13,20 +12,9 @@ obj.author = "Matthew Fallshaw <m@fallshaw.me>"
 obj.license = "MIT - https://opensource.org/licenses/MIT"
 obj.homepage = "https://github.com/matthewfallshaw/Hermes.spoon"
 
-
---- Hermes:state_paused
---- Constant
---- Returned by `Hermes:getPlaybackState()` to indicates Hermes is paused
+-- Strings returned by `Hermes:getPlaybackState()`
 obj.state_paused = "paus"   -- Note Applescript Hermes Dictionary claims this is "paused"
-
---- Hermes:state_playing
---- Constant
---- Returned by `Hermes:getPlaybackState()` to indicates Hermes is playing
 obj.state_playing = "play"  -- Note Applescript Hermes Dictionary claims this is "playing"
-
---- Hermes:state_stopped
---- Constant
---- Returned by `Hermes:getPlaybackState()` to indicates Hermes is stopped
 obj.state_stopped = "stopped"  -- Claimed by Applescript Hermes Dictionary, untested
 
 
@@ -153,7 +141,7 @@ function obj:getCurrentTrack()
   return tell('title of the current song as string')
 end
 
---- Hermes:getPlaybackState()
+--- Hermes:getPlaybackState() -> string or nil
 --- Function
 --- Gets the current playback state of Hermes
 ---
@@ -173,7 +161,7 @@ function obj:getPlaybackState()
   end
 end
 
---- Hermes:isRunning()
+--- Hermes:isRunning() -> boolean
 --- Function
 --- Returns whether Hermes is currently open. Most other functions in Hermes.spoon will automatically start the application, so this function can be used to guard against that.
 ---
@@ -186,7 +174,7 @@ function obj:isRunning()
   return hs.application.get("Hermes") ~= nil
 end
 
---- Hermes:isPlaying()
+--- Hermes:isPlaying() -> boolean or nil
 --- Function
 --- Returns whether Hermes is currently playing
 ---
@@ -210,7 +198,7 @@ function obj:isPlaying()
   end
 end
 
---- Hermes:getVolume()
+--- Hermes:getVolume() -> number
 --- Function
 --- Gets the current Hermes volume setting
 ---
@@ -267,7 +255,7 @@ function obj:volumeDown()
   return obj
 end
 
---- Hermes:getPosition()
+--- Hermes:getPosition() -> number
 --- Function
 --- Gets the playback position (in seconds) of the current song
 ---
@@ -280,7 +268,7 @@ function obj:getPosition()
   return tell('playback position')
 end
 
---- Hermes:getDuration()
+--- Hermes:getDuration() -> number
 --- Function
 --- Gets the duration (in seconds) of the current song
 ---
@@ -295,7 +283,7 @@ function obj:getDuration()
 end
 
 
-
+obj.hotkeys={}
 --- Hermes:bindHotkeys(mapping)
 --- Method
 --- Binds hotkeys for Hermes
