@@ -11,6 +11,7 @@ obj.name = "Hermes"
 obj.version = "0.1"
 obj.author = "Matthew Fallshaw <m@fallshaw.me>"
 obj.license = "MIT - https://opensource.org/licenses/MIT"
+obj.homepage = "https://github.com/matthewfallshaw/Hermes.spoon"
 
 
 --- Hermes:state_paused
