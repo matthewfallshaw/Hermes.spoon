@@ -15,7 +15,7 @@ obj.homepage = "https://github.com/matthewfallshaw/Hermes.spoon"
 -- Strings returned by `Hermes:getPlaybackState()`
 obj.state_paused = "paus"   -- Note Applescript Hermes Dictionary claims this is "paused"
 obj.state_playing = "play"  -- Note Applescript Hermes Dictionary claims this is "playing"
-obj.state_stopped = "stopped"  -- Claimed by Applescript Hermes Dictionary, untested
+obj.state_stopped = "stopped"  -- Claimed by Applescript Hermes Dictionary, untested (impossible?)
 
 
 -- Internal function to pass a command to Applescript.
@@ -40,6 +40,14 @@ end
 ---  * None
 function obj:playpause()
   tell('playpause')
+  state = obj.getPlaybackState()
+  if state == obj.state_playing then
+    hs.alert.show("Hermes playing")
+  elseif state == obj.state_paused or state == obj.state_stopped then
+    hs.alert.show("Hermes paused")
+  else  -- unknown state
+    return nil
+  end
   return obj
 end
 
@@ -54,6 +62,7 @@ end
 ---  * None
 function obj:play()
   tell('play')
+  hs.alert.show("Hermes playing")
   return obj
 end
 
@@ -69,6 +78,7 @@ end
 function obj:pause()
   if obj.isRunning() then
     tell('pause')
+    hs.alert.show("Hermes paused")
     return obj
   else
     hs.alert.show("Hermes isn't running")
@@ -86,6 +96,7 @@ end
 ---  * None
 function obj:next()
   tell('next song')
+    hs.alert.show("Next song in Hermes")
   return obj
 end
 
@@ -102,6 +113,9 @@ function obj:like()
   if obj.isRunning() then
     if obj.getCurrentRating() ~= 1 then
       tell('thumbs up')
+      hs.alert.show("Liked song in Hermes")
+    else
+      hs.alert.show("Song in Hermes already Liked")
     end
     return obj
   else
@@ -121,6 +135,7 @@ end
 function obj:dislike()
   if obj.isRunning() then
     tell('thumbs down')
+    hs.alert.show("Disliked song in Hermes")
     return obj
   else
     hs.alert.show("Hermes isn't running")
@@ -139,6 +154,7 @@ end
 function obj:tired()
   if obj.isRunning() then
     tell('tired of song')
+    hs.alert.show("Shelved song for a while in Hermes")
     return obj
   else
     hs.alert.show("Hermes isn't running")
@@ -157,6 +173,7 @@ end
 function obj:quit()
   if obj.isRunning() then
     hs.application.get("Hermes"):kill()
+    hs.alert.show("Quit Hermes")
     return obj
   end
 end
@@ -173,6 +190,7 @@ end
 function obj:hide()
   if obj.isRunning() then
     hs.application.get("Hermes"):hide()
+    hs.alert.show("Hid Hermes")
     return obj
   end
 end
@@ -193,6 +211,8 @@ function obj:displayCurrentTrack()
   hs.alert.show(track .."\n".. album .."\n".. artist, 1.75)
   return obj
 end
+
+
 
 --- Hermes:getCurrentArtist() -> string or nil
 --- Function
@@ -360,7 +380,7 @@ end
 --- Returns:
 ---  * None
 function obj:volumeDown()
-  tell'decrease volume'
+  tell('decrease volume')
   return obj
 end
 
