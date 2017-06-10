@@ -96,7 +96,7 @@ end
 ---  * None
 function obj:next()
   tell('next song')
-    hs.alert.show("Next song in Hermes")
+  hs.alert.show("Next song in Hermes")
   return obj
 end
 
@@ -208,7 +208,7 @@ function obj:displayCurrentTrack()
   local artist = tell('artist of the current song as string') or "Unknown artist"
   local album  = tell('album of the current song as string') or "Unknown album"
   local track  = tell('title of the current song as string') or "Unknown track"
-  hs.alert.show(track .."\n".. album .."\n".. artist, 1.75)
+  hs.alert.show(track .."\n".. album .."\n".. artist .."\nin Hermes", 1.75)
   return obj
 end
 
