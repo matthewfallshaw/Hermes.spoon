@@ -5,6 +5,8 @@
 local obj={}
 obj.__index = obj
 
+local logger = hs.logger.new("Hermes")
+
 -- Metadata
 obj.name = "Hermes"
 obj.version = "0.1"
@@ -29,6 +31,24 @@ local function tell(cmd)
   end
 end
 
+local function alertwithlog(message, level)
+  if not level then level = logger.level end
+  hs.alert.show(message)
+  if level == 0 then     -- nothing
+    -- log nothing
+  elseif level == 1 then -- error
+    logger.e(message)
+  elseif level == 2 then -- warning
+    logger.w(message)
+  elseif level == 3 then -- info
+    logger.i(message)
+  elseif level == 4 then -- debug
+    logger.d(message)
+  elseif level == 5 then -- verbose
+    logger.v(message)
+  end
+end
+
 --- Hermes:playpause()
 --- Method
 --- Toggles play/pause of current Hermes track
@@ -42,9 +62,9 @@ function obj:playpause()
   tell('playpause')
   state = obj.getPlaybackState()
   if state == obj.state_playing then
-    hs.alert.show("Hermes playing")
+    alertwithlog("Hermes playing", 3)
   elseif state == obj.state_paused or state == obj.state_stopped then
-    hs.alert.show("Hermes paused")
+    alertwithlog("Hermes paused", 3)
   else  -- unknown state
     return nil
   end
@@ -62,7 +82,7 @@ end
 ---  * None
 function obj:play()
   tell('play')
-  hs.alert.show("Hermes playing")
+  alertwithlog("Hermes playing", 3)
   return obj
 end
 
@@ -78,7 +98,7 @@ end
 function obj:pause()
   if obj.isRunning() then
     tell('pause')
-    hs.alert.show("Hermes paused")
+    alertwithlog("Hermes paused", 3)
     return obj
   else
     hs.alert.show("Hermes isn't running")
@@ -95,8 +115,12 @@ end
 --- Returns:
 ---  * None
 function obj:next()
-  tell('next song')
-  hs.alert.show("Next song in Hermes")
+  if obj.isRunning() then
+    tell('next song')
+    alertwithlog("Next song in Hermes", 3)
+  else
+    hs.alert.show("Hermes isn't running")
+  end
   return obj
 end
 
@@ -113,9 +137,9 @@ function obj:like()
   if obj.isRunning() then
     if obj.getCurrentRating() ~= 1 then
       tell('thumbs up')
-      hs.alert.show("Liked song in Hermes")
+      alertwithlog("Liked song in Hermes", 3)
     else
-      hs.alert.show("Song in Hermes already Liked")
+      alertwithlog("Song in Hermes already Liked", 3)
     end
     return obj
   else
@@ -135,7 +159,7 @@ end
 function obj:dislike()
   if obj.isRunning() then
     tell('thumbs down')
-    hs.alert.show("Disliked song in Hermes")
+    alertwithlog("Disliked song in Hermes", 3)
     return obj
   else
     hs.alert.show("Hermes isn't running")
@@ -154,7 +178,7 @@ end
 function obj:tired()
   if obj.isRunning() then
     tell('tired of song')
-    hs.alert.show("Shelved song for a while in Hermes")
+    alertwithlog("Shelved song for a while in Hermes", 3)
     return obj
   else
     hs.alert.show("Hermes isn't running")
@@ -173,8 +197,10 @@ end
 function obj:quit()
   if obj.isRunning() then
     hs.application.get("Hermes"):kill()
-    hs.alert.show("Quit Hermes")
+    alertwithlog("Quit Hermes", 3)
     return obj
+  else
+    hs.alert.show("Hermes isn't running")
   end
 end
 
@@ -192,12 +218,14 @@ function obj:hide()
     local hermes = hs.application.get("Hermes")
     if hermes:isHidden() then
       hermes:unhide()
-      hs.alert.show("Unhid Hermes")
+      alertwithlog("Unhid Hermes", 3)
     else
       hermes:hide()
-      hs.alert.show("Hid Hermes")
+      alertwithlog("Hid Hermes", 3)
     end
     return obj
+  else
+    hs.alert.show("Hermes isn't running")
   end
 end
 
@@ -211,11 +239,105 @@ end
 --- Returns:
 ---  * None
 function obj:displayCurrentTrack()
-  local artist = tell('artist of the current song as string') or "Unknown artist"
-  local album  = tell('album of the current song as string') or "Unknown album"
-  local track  = tell('title of the current song as string') or "Unknown track"
-  hs.alert.show(track .."\n".. album .."\n".. artist .."\nin Hermes", 1.75)
+  if obj.isRunning() then
+    local artist = tell('artist of the current song as string') or "Unknown artist"
+    local album  = tell('album of the current song as string') or "Unknown album"
+    local track  = tell('title of the current song as string') or "Unknown track"
+    alertwithlog(track .."\n".. album .."\n".. artist .."\nin Hermes", 1.75, 3)
+  else
+    hs.alert.show("Hermes isn't running")
+  end
   return obj
+end
+
+--- Hermes:setVolume(volume)
+--- Method
+--- Sets the Hermes playback volume
+---
+--- Parameters:
+---  * vol - A number, between 0 and 100
+---
+--- Returns:
+---  * None
+function obj:setVolume(volume)
+  if obj:isRunning() then
+    volume = math.min(100, math.max(0, tonumber(volume)))
+    if not volume then error('volume must be a number 0..100',2) end
+    tell('set playback volume to '.. volume)
+    if volume == 0 then
+      alertwithlog("Hermes muted", 3)
+    else
+      hs.alert.closeAll(0)
+      alertwithlog("Hermes volume: ".. volume, 3)
+    end
+    return obj
+  else
+    hs.alert.show("Hermes isn't running")
+  end
+end
+
+--- Hermes:mute()
+--- Method
+--- Toggle Hermes mute state
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function obj:mute()
+  if obj:isRunning() then
+    if obj:getVolume() > 0 then
+      obj.mute_restore_volume = obj:getVolume()
+      obj:setVolume(0)
+    else
+      if obj.mute_restore_volume then
+        obj:setVolume(obj.mute_restore_volume)
+      else
+        obj:setVolume(10)
+      end
+      obj.mute_restore_volume = nil
+    end
+    return obj
+  else
+    hs.alert.show("Hermes isn't running")
+  end
+end
+
+--- Hermes:volumeUp()
+--- Method
+--- Increases the Hermes playback volume
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function obj:volumeUp()
+  if obj:isRunning() then
+    obj:setVolume(obj:getVolume() + 1)
+    return obj
+  else
+    hs.alert.show("Hermes isn't running")
+  end
+end
+
+--- Hermes:volumeDown()
+--- Method
+--- Decreases the Hermes playback volume
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function obj:volumeDown()
+  if obj:isRunning() then
+    obj:setVolume(obj:getVolume() - 1)
+    return obj
+  else
+    hs.alert.show("Hermes isn't running")
+  end
 end
 
 
@@ -230,7 +352,9 @@ end
 --- Returns:
 ---  * A string containing the Artist of the current track, or nil if an error occurred
 function obj:getCurrentArtist()
-  return tell('artist of the current song as string')
+  if obj.isRunning() then
+    return tell('artist of the current song as string')
+  end
 end
 
 --- Hermes:getCurrentAlbum() -> string or nil
@@ -243,7 +367,9 @@ end
 --- Returns:
 ---  * A string containing the Album of the current track, or nil if an error occurred
 function obj:getCurrentAlbum()
-  return tell('album of the current song as string')
+  if obj.isRunning() then
+    return tell('album of the current song as string')
+  end
 end
 
 --- Hermes:getCurrentTrack() -> string or nil
@@ -256,7 +382,9 @@ end
 --- Returns:
 ---  * A string containing the name of the current track, or nil if an error occurred
 function obj:getCurrentTrack()
-  return tell('title of the current song as string')
+  if obj.isRunning() then
+    return tell('title of the current song as string')
+  end
 end
 
 --- Hermes:getCurrentRating() -> number or nil
@@ -343,51 +471,9 @@ end
 --- Returns:
 ---  * A number, between 1 and 100, containing the current Hermes playback volume
 function obj:getVolume()
-  return tell('playback volume')
-end
-
---- Hermes:setVolume(vol)
---- Method
---- Sets the Hermes playback volume
----
---- Parameters:
----  * vol - A number, between 1 and 100
----
---- Returns:
----  * None
-function obj:setVolume(v)
-  v=tonumber(v)
-  if not v then error('volume must be a number 1..100',2) end
-  tell('set playback volume to '..math.min(100,math.max(0,v)))
-  return obj
-end
-
---- Hermes:volumeUp()
---- Method
---- Increases the Hermes playback volume by 5
----
---- Parameters:
----  * None
----
---- Returns:
----  * None
-function obj:volumeUp()
-  tell('increase volume')
-  return obj
-end
-
---- Hermes:volumeDown()
---- Method
---- Decreases the Hermes playback volume by 5
----
---- Parameters:
----  * None
----
---- Returns:
----  * None
-function obj:volumeDown()
-  tell('decrease volume')
-  return obj
+  if obj:isRunning() then
+    return tell('playback volume')
+  end
 end
 
 --- Hermes:getPosition() -> number
@@ -400,7 +486,9 @@ end
 --- Returns:
 ---  * A number indicating the current position in the song
 function obj:getPosition()
-  return tell('playback position')
+  if obj:isRunning() then
+    return tell('playback position')
+  end
 end
 
 --- Hermes:getDuration() -> number
@@ -413,8 +501,10 @@ end
 --- Returns:
 ---  * The number of seconds long the current song is, 0 if no song is playing
 function obj:getDuration()
-  local duration = tonumber(tell('current song duration'))
-  return duration ~= nil and duration or 0
+  if obj:isRunning() then
+    local duration = tonumber(tell('current song duration'))
+    return duration ~= nil and duration or 0
+  end
 end
 
 
@@ -435,7 +525,7 @@ function obj:bindHotkeys(mapping)
       local mods, hotkey = mapping[k][1], mapping[k][2]
       obj.hotkeys[k] = hs.hotkey.bind(mods, hotkey, function() obj[k]() end)
     else
-      self.logger.ef("Error: Hotkey requested for undefined action '%s'", name)
+      logger.ef("Error: Hotkey requested for undefined action '%s'", name)
     end
   end
 end
