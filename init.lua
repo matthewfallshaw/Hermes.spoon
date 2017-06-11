@@ -180,7 +180,7 @@ end
 
 --- Hermes:hide()
 --- Method
---- Hide Hermes
+--- Hide (or show) Hermes
 ---
 --- Parameters:
 ---  * None
@@ -189,8 +189,14 @@ end
 ---  * None
 function obj:hide()
   if obj.isRunning() then
-    hs.application.get("Hermes"):hide()
-    hs.alert.show("Hid Hermes")
+    local hermes = hs.application.get("Hermes")
+    if hermes:isHidden() then
+      hermes:unhide()
+      hs.alert.show("Unhid Hermes")
+    else
+      hermes:hide()
+      hs.alert.show("Hid Hermes")
+    end
     return obj
   end
 end
