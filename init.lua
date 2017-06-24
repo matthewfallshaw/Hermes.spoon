@@ -33,6 +33,7 @@ end
 
 function obj.alertwithlog(message, level)
   if not level then level = logger.level end
+  hs.alert.closeAll(0)
   hs.alert.show(message)
   if level == 0 then     -- nothing
     -- log nothing
@@ -267,7 +268,6 @@ function obj.setVolume(volume)
     if volume == 0 then
       obj.alertwithlog("Hermes muted", 3)
     else
-      hs.alert.closeAll(0)
       obj.alertwithlog("Hermes volume: ".. volume, 3)
     end
     return obj
